@@ -13,11 +13,7 @@ export class UsersService {
   }
 
   async findOne(user: Pick<User, 'email'>) {
-    console.log(
-      '🚀 ~ file: users.service.ts:16 ~ UsersService ~ findOne ~ user:',
-      user,
-    );
-    const userFound = await this.userModel.findOne(user);
+    const userFound = await this.userModel.findOne(user).exec();
     return userFound.toObject();
   }
 

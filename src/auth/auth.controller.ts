@@ -26,8 +26,14 @@ export class AuthController {
 
   @Public()
   @Post('singup')
-  async signUp(@Body() signUpDto: SignUpDto): Promise<Omit<User, 'password'>> {
-    return this.authService.signUp(signUpDto);
+  async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response) {
+    const { email, name, password } = signUpDto;
+    const userCreated = await this.authService.signUp({
+      email,
+      name,
+      password,
+    });
+    return res.status(HttpStatus.CREATED).json(userCreated);
   }
 
   @Public()
