@@ -1,70 +1,62 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Product } from './product.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Product, ProductDocument } from './entities/product.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from 'src/users/user.schema';
-import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
-  async create(product: Omit<Product, 'user'>, userId: string) {
+  async create(
+    product: Omit<Product, 'user'>,
+    userId: string,
+  ): Promise<Product> {
     const createdProduct = new this.productModel({
       ...product,
       user: userId,
     });
-    const productCreated = await createdProduct.save();
-    const user = await this.userModel.findById(userId).exec();
-    user.products.push(createdProduct);
-    await user.save();
-
-    return productCreated.toObject();
+    return await createdProduct.save();
   }
 
-  async findAll(userId: string) {
-    const user = await this.userModel
-      .findById(userId)
-      .populate('products', null, Product.name)
-      .exec();
-    return user.products;
-  }
-
-  async findOne(id: string, userId: string) {
-    const user = await this.userModel
-      .findById(userId)
-      .populate('products', null, Product.name, {
-        _id: id,
+  async findAll(userId: string): Promise<Product[]> {
+    const products = await this.productModel
+      .find({
+        user: userId,
       })
       .exec();
-    return user.products[0];
+    return products;
   }
 
-  async update(id: string, product: Partial<Product>, userId: string) {
-    const productFromUser = await this.findOne(id, userId);
-    if (!productFromUser) {
-      throw new NotFoundException('Product not found!');
-    }
+  async findOne(id: string, userId: string): Promise<Product> {
+    const products = await this.productModel
+      .findOne({
+        _id: id,
+        user: userId,
+      })
+      .exec();
+    return products;
+  }
+
+  async update(
+    id: string,
+    product: Partial<Product>,
+    userId: string,
+  ): Promise<Product> {
     const productUpdated = await this.productModel
-      .findByIdAndUpdate(id, product)
+      .findOneAndUpdate({ _id: id, user: userId }, product, { new: true })
       .exec();
     return productUpdated.toObject();
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<boolean> {
     const productFromUser = await this.findOne(id, userId);
     if (!productFromUser) {
       throw new NotFoundException('Product not found!');
     }
-    await this.productModel.findByIdAndRemove(id).exec();
-    return true;
+    const objId = new Types.ObjectId(id);
+    const deleted = await this.productModel.deleteOne({ _id: objId });
+    return deleted.deletedCount === 1;
   }
 }

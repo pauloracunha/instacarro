@@ -12,11 +12,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from './product.schema';
+import { Product } from './entities/product.entity';
 import { RequestWithUser } from 'src/auth/dto/request.dto';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Types } from 'mongoose';
+import { CreateProductDto } from './dto/createProduct.dto';
+import { UpdateProductDto } from './dto/updateProduct.dto';
 
 @ApiTags('Products')
 @ApiCookieAuth(process.env.ACCESS_TOKEN_COOKIE_NAME)
@@ -25,13 +27,13 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(
-    @Body() product: Product,
+  async create(
+    @Body() product: CreateProductDto,
     @Req() req: RequestWithUser,
     @Res() res: Response,
   ) {
     const { title, category, description, images } = product;
-    const productCreated = this.productsService.create(
+    const productCreated = await this.productsService.create(
       {
         title,
         category,
@@ -65,7 +67,7 @@ export class ProductsController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateProductDto: Partial<Product>,
+    @Body() updateProductDto: UpdateProductDto,
     @Req() req: RequestWithUser,
     @Res() res: Response,
   ) {

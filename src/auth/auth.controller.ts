@@ -16,7 +16,7 @@ import { LocalAuthGuard } from './guards/local.guard';
 import { RequestWithUser } from './dto/request.dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { SignInDto } from './dto/singin.dto';
-import { User } from 'src/users/user.schema';
+import { User } from 'src/users/entities/user.entity';
 import { time } from 'console';
 
 @ApiTags('auth')

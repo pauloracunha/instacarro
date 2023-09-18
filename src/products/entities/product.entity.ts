@@ -1,46 +1,39 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
-import { HydratedDocument, Types } from 'mongoose';
-import { User } from 'src/users/user.schema';
+import * as mongoose from 'mongoose';
+import { Auction } from 'src/auctions/entities/auction.entity';
+import { User } from 'src/users/entities/user.entity';
 
-export type ProductDocument = HydratedDocument<Product>;
+export type ProductDocument = Product & mongoose.Document;
 
 @Schema({
   timestamps: true,
 })
 export class Product {
   @Prop({ required: '{PATH} is required!' })
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
   title: string;
 
   @Prop()
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
   category?: string;
 
   @Prop()
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
   description?: string;
 
   @Prop()
-  @IsArray()
-  @IsOptional()
-  @ApiProperty()
   images?: string[];
 
   @Prop({
-    type: {
-      type: Types.ObjectId,
-      ref: 'User',
-    },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   })
   user: User;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Auction',
+  })
+  auction?: Auction;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

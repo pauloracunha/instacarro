@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
-import { Product } from 'src/products/product.schema';
+import * as mongoose from 'mongoose';
+import { Product } from 'src/products/entities/product.entity';
 
-export type UserDocument = HydratedDocument<User>;
+export type UserDocument = User & mongoose.Document;
 
 @Schema({
   timestamps: true,
@@ -18,7 +18,7 @@ export class User {
   password?: string;
 
   @Prop({
-    type: [Types.ObjectId],
+    type: [mongoose.Schema.Types.ObjectId],
     ref: 'Product',
   })
   products?: Product[];
