@@ -24,6 +24,10 @@ export class BidsService {
       auction: auctionId,
       user: userId,
     }).save();
+    const auction = await this.auctionsService.findOne(auctionId);
+    auction.bids = auction?.bids ?? [];
+    auction.bids.push(bidCreated);
+    await auction.save();
     return bidCreated;
   }
 

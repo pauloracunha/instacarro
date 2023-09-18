@@ -5,6 +5,8 @@ import mongoose, { FilterQuery, Model } from 'mongoose';
 import { ProductsService } from 'src/products/products.service';
 import { AuctionFilters } from './auctionFilters';
 import { AuctionStatusEnum } from './dto/auctionStatus.enum';
+import { CreateAuctionDto } from './dto/createAuction.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuctionsService {
@@ -13,7 +15,7 @@ export class AuctionsService {
     private productsService: ProductsService,
   ) {}
 
-  async create(auction: Auction, productId: string, userId: string) {
+  async create(auction: CreateAuctionDto, productId: string, userId: string) {
     const productFromUser = await this.productsService.findOne(
       productId,
       userId,
@@ -46,16 +48,24 @@ export class AuctionsService {
         .map(({ auction }) => auction ?? undefined)
         .filter((auction) => !!auction);
     }
-    const auctionsQuery = this.auctionModel
+    const auctionsQuery = await this.auctionModel
       .find(filter)
       .populate('product', 'title description category images');
-    return await auctionsQuery.exec();
+    return auctionsQuery;
   }
 
   async findOne(id: string) {
     return await this.auctionModel
       .findById(id)
-      .populate('product', 'title description category images');
+      .populate('product', 'title description category images')
+      .populate({
+        path: 'bids',
+        populate: {
+          path: 'user',
+          model: User.name,
+          select: 'name',
+        },
+      });
   }
 
   async update(
@@ -66,6 +76,7 @@ export class AuctionsService {
     const auctionSearch = await this.auctionModel
       .findById(id)
       .populate('product');
+
     // eslint-disable-next-line
     // @ts-ignore
     if (auctionSearch.product.user._id.toString() != userId) {

@@ -19,7 +19,7 @@ export class Bid {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   })
-  product: User;
+  user: User;
 
   @Prop({
     type: mongoose.Schema.Types.Number,
