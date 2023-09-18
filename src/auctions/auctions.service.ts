@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { FilterQuery, Model } from 'mongoose';
 import { ProductsService } from 'src/products/products.service';
 import { AuctionFilters } from './auctionFilters';
+import { AuctionStatusEnum } from './dto/auctionStatus.enum';
 
 @Injectable()
 export class AuctionsService {
@@ -20,6 +21,7 @@ export class AuctionsService {
     if (!productFromUser) {
       throw new NotFoundException('Product not found!');
     }
+    auction.status = auction?.status ?? AuctionStatusEnum.AWAITING;
     const auctionSaved = await this.auctionModel
       .findOneAndUpdate(
         {
@@ -61,10 +63,12 @@ export class AuctionsService {
     auction: Omit<Partial<Auction>, 'product'>,
     userId: string,
   ) {
-    const auctionSearch = await this.findOne(id);
+    const auctionSearch = await this.auctionModel
+      .findById(id)
+      .populate('product');
     // eslint-disable-next-line
     // @ts-ignore
-    if (auctionSearch.product.user._id != userId) {
+    if (auctionSearch.product.user._id.toString() != userId) {
       throw new NotFoundException('Auction not found!');
     }
     const auctionUpdated = await this.auctionModel
@@ -83,5 +87,16 @@ export class AuctionsService {
     const objId = new mongoose.Types.ObjectId(id);
     const deleted = await this.auctionModel.deleteOne({ _id: objId });
     return deleted.deletedCount === 1;
+  }
+
+  async isAcceptBids(id: string): Promise<boolean> {
+    return (
+      (await this.auctionModel
+        .count({
+          _id: id,
+          status: AuctionStatusEnum.ACCEPTING_BID,
+        })
+        .exec()) > 0
+    );
   }
 }

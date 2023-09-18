@@ -32,12 +32,12 @@ export class AuctionsController {
     @Req() req: RequestWithUser,
     @Res() res: Response,
   ) {
-    const { product, startBidAt, endBidAt, status } = auction;
+    const { product, status } = auction;
     if (!Types.ObjectId.isValid(product)) {
       throw new BadRequestException('productId is not a valid id!');
     }
     const auctionCreated = await this.auctionsService.create(
-      { startBidAt, endBidAt, status },
+      { status },
       product,
       req.user.id,
     );

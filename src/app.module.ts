@@ -9,6 +9,7 @@ import { JwtAuthGuard } from './auth/guards/auth.guard';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsModule } from './products/products.module';
 import { AuctionsModule } from './auctions/auctions.module';
+import { BidsModule } from './bid/bids.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuctionsModule } from './auctions/auctions.module';
     UsersModule,
     ProductsModule,
     AuctionsModule,
+    BidsModule,
   ],
   controllers: [AppController],
   providers: [

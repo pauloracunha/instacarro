@@ -16,12 +16,6 @@ export class Auction {
 
   @Prop()
   status?: string;
-
-  @Prop()
-  startBidAt: string;
-
-  @Prop()
-  endBidAt: string;
 }
 
 export const AuctionSchema = SchemaFactory.createForClass(Auction);

@@ -1,19 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
+import { AuctionStatusEnum } from './auctionStatus.enum';
 
 export class UpdateAuctionDto {
-  @IsString()
+  @IsEnum(AuctionStatusEnum)
   @IsOptional()
   @ApiProperty()
-  status?: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  startBidAt: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  endBidAt: string;
+  status?: AuctionStatusEnum;
 }
