@@ -20,4 +20,5 @@ npm install
 ## TODO
 
 - [ ] Testes
+- [ ] Filtros de pesquisa
 - [ ] Funções de administrador
