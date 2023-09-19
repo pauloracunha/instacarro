@@ -17,6 +17,9 @@ npm install
 4. Iniciar a Aplicação
    `npm run start`
 
+## Documentação
+ - Swagger disponível na rota /docs
+
 ## TODO
 
 - [ ] Testes
